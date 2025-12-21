@@ -1,6 +1,6 @@
 import os
 
-DATABASE_URL = 'postgresql://postgres:060906@localhost:5432/Gym'
+DATABASE_URL = "postgresql://neondb_owner:npg_3gkFB1NaIQiE@ep-restless-mud-agffmft4.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require"
 
 class Config:
     SQLALCHEMY_DATABASE_URI = DATABASE_URL

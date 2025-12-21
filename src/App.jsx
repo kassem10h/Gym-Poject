@@ -17,7 +17,7 @@ function AppContent() {
   const noLayoutRoutes = ['/login', '/admin/login'];
   const isDashboardRoute = location.pathname !== '/' && 
                           location.pathname !== '/login' && 
-                          location.pathname !== '/admin/login';
+                          location.pathname !== 'pu/admin/login';
   
   const shouldShowLayout = !noLayoutRoutes.includes(location.pathname) && !isDashboardRoute;
 
@@ -31,7 +31,7 @@ function AppContent() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/:tab" element={<Dashboard />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="pu/admin/login" element={<AdminLogin />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
       </Routes>

@@ -237,25 +237,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="mt-8 relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-zinc-500">Ain't you an admin Nigga?</span>
-            </div>
-          </div>
-
-          {/* Social Login */}
-          <div className="mt-6 grid grid-cols-1 place-items-center">
-            <a href="/admin/login" className="w-full max-w-xs">
-              <button className="w-full flex items-center justify-center gap-2 border border-zinc-300 rounded-lg py-2 hover:bg-zinc-100 transition-all">
-                Admin Login
-              </button>
-            </a>
-          </div>
-
+          
 
           {/* Sign Up Link */}
           <p className="mt-8 text-center text-sm text-zinc-600">
