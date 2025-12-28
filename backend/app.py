@@ -53,6 +53,10 @@ def handle_preflight():
         response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, X-CSRF-TOKEN"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
         return response
+    
+@app.route('/')
+def home():
+    return "Hey"
 
 # JWT Error Handlers for better debugging
 @jwt.unauthorized_loader

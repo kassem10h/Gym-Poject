@@ -43,12 +43,14 @@ export default function CheckoutPage() {
       if (response.ok) {
         const data = await response.json();
         setCheckoutPreview(data);
+        console.log(checkoutPreview);
         
         // Select all items by default
         setSelectedItems({
           products: data.products.items.map(item => item.cart_item_id),
           sessions: data.sessions.items.map(item => item.cart_item_id)
         });
+        console.log(selectedItems);
       } else {
         showNotification('Failed to load checkout', 'error');
       }
