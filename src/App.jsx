@@ -39,7 +39,7 @@ function AppContent() {
         <Route path="/member/dashboard/:tab" element={<Dashboard />} />
         <Route path="/trainer/dashboard" element={<Dashboard />} />
         <Route path="/trainer/dashboard/:tab" element={<Dashboard />} />
-        
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

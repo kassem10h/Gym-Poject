@@ -22,8 +22,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const dropDownRef = useRef(null);
-  
+  const dropDownRef = useRef(null);  
   // Get user from localStorage
   const user = localStorage.getItem('user') 
     ? JSON.parse(localStorage.getItem('user')) 

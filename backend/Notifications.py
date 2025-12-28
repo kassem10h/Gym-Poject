@@ -5,7 +5,6 @@ Import and use these functions in any blueprint to create notifications.
 from models import db, Notification
 from datetime import datetime
 
-
 def create_notification(user_id, message, link):
     """
     Create a notification for a user.

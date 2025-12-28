@@ -10,7 +10,6 @@ from Notifications import (
 
 notifications_bp = Blueprint('notifications', __name__, url_prefix='/api/notifications')
 
-
 @notifications_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_notifications():
