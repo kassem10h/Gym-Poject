@@ -303,10 +303,10 @@ const LandingPage = () => {
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-bold">SJ</span>
+                  <span className="text-blue-600 font-bold">FJ</span>
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">Sarah Johnson</p>
+                  <p className="font-bold text-gray-900">Fadel jawad</p>
                   <p className="text-sm text-gray-600">Member for 2 years</p>
                 </div>
               </div>
@@ -321,10 +321,10 @@ const LandingPage = () => {
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 font-bold">MC</span>
+                  <span className="text-green-600 font-bold">RI</span>
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">Mike Chen</p>
+                  <p className="font-bold text-gray-900">rawad issa</p>
                   <p className="text-sm text-gray-600">Member for 1 year</p>
                 </div>
               </div>
@@ -339,10 +339,10 @@ const LandingPage = () => {
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <span className="text-purple-600 font-bold">EP</span>
+                  <span className="text-purple-600 font-bold">HA</span>
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">Emma Parker</p>
+                  <p className="font-bold text-gray-900">hussein ali</p>
                   <p className="text-sm text-gray-600">Member for 6 months</p>
                 </div>
               </div>
