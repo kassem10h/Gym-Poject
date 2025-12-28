@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Navigation from "./components/Navbar";
@@ -14,10 +14,8 @@ function AppContent() {
   const location = useLocation();
   
   // Routes that should not show navbar and footer
-  const noLayoutRoutes = ['/login', '/admin/login'];
-  const isDashboardRoute = location.pathname !== '/' && 
-                          location.pathname !== '/login' && 
-                          location.pathname !== 'pu/admin/login';
+  const noLayoutRoutes = ['/login', '/signup', '/admin/login'];
+  const isDashboardRoute = location.pathname.includes('/dashboard');
   
   const shouldShowLayout = !noLayoutRoutes.includes(location.pathname) && !isDashboardRoute;
 
@@ -30,10 +28,20 @@ function AppContent() {
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/:tab" element={<Dashboard />} />
-        <Route path="pu/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+        
+        {/* Dashboard Routes */}
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/dashboard/:tab" element={<Dashboard />} />
+        <Route path="/member/dashboard" element={<Dashboard />} />
+        <Route path="/member/dashboard/:tab" element={<Dashboard />} />
+        <Route path="/trainer/dashboard" element={<Dashboard />} />
+        <Route path="/trainer/dashboard/:tab" element={<Dashboard />} />
+        
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       {shouldShowLayout && <Footer />}

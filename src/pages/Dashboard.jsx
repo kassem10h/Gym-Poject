@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Home, BarChart3, Users, Settings, Package, Menu, X, User, Warehouse, Dumbbell,
   Search, ChevronDown, LogOut, Bell, FileText, ShoppingCart, Receipt, Calendar, Calculator
@@ -13,18 +14,23 @@ import TrainerSessionsPage from './trainer/SessionMangament';
 import TrainerSchedulePage from './trainer/TrainerSchedule';
 import MembershipPage from './member/Membership';
 import BMICalculator from './member/BMICalculator';
+import MemberDashboard from './member/Dashboard';
+import NotificationBell from '../components/Notification';
 
 const Dashboard = () => {
+  const { tab } = useParams();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropDownRef = useRef(null);
   
-  const [activeTab, setActiveTab] = useState('dashboard');
-  
-  // Get user from localStorage - this would match your actual user object
+  // Get user from localStorage
   const user = localStorage.getItem('user') 
     ? JSON.parse(localStorage.getItem('user')) 
     : { first_name: 'Admin', last_name: 'User', role: 'Admin', email: 'admin@gym.com' };
+
+  // Determine active tab from URL or default to 'dashboard'
+  const activeTab = tab || 'dashboard';
 
   // Role-based navigation configuration
   const getNavItems = (role) => {
@@ -46,7 +52,6 @@ const Dashboard = () => {
         { id: 'classes', label: 'Classes', icon: Users },
         { id: 'bookings', label: 'Bookings', icon: Calendar },
         { id: 'my-membership', label: 'My Membership', icon: Receipt },
-        { id: 'bmi_calculator', label: 'BMI Calculator', icon: Calculator },
         { id: 'profile', label: 'Profile', icon: User },
       ],
       Trainer: [
@@ -64,6 +69,11 @@ const Dashboard = () => {
   };
 
   const navItems = getNavItems(user.role);
+
+  // Get the base path based on user role
+  const getBasePath = () => {
+    return `/${user.role.toLowerCase()}/dashboard`;
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -85,6 +95,16 @@ const Dashboard = () => {
     }
     window.location.href = '/login';
   }
+
+  const handleTabChange = (tabId) => {
+    const basePath = getBasePath();
+    if (tabId === 'dashboard') {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/${tabId}`);
+    }
+    setMobileMenuOpen(false);
+  };
 
   const PlaceholderContent = ({ title }) => (
     <div className="space-y-6">
@@ -130,7 +150,7 @@ const Dashboard = () => {
     if (user.role === 'Member') {
       switch(activeTab) {
         case 'dashboard':
-          return <PlaceholderContent title="Member Dashboard" />;
+          return <MemberDashboard />;
         case 'products':
           return <ProductShopPage />;
         case 'equipment':
@@ -141,8 +161,6 @@ const Dashboard = () => {
           return <BookingsPage />;
         case 'my-membership':
           return <MembershipPage />;
-        case 'bmi_calculator':
-          return <BMICalculator />;
         case 'profile':
           return <PlaceholderContent title="Profile" />;
         default:
@@ -175,6 +193,9 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      {/* BMI Calculator - Only for Members on all pages */}
+      {user.role === 'Member' && <BMICalculator />}
+
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div
@@ -219,10 +240,7 @@ const Dashboard = () => {
               return (
                 <li key={item.id}>
                   <button
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setMobileMenuOpen(false);
-                    }}
+                    onClick={() => handleTabChange(item.id)}
                     className={`w-full flex items-center p-3 rounded-lg transition-all duration-200 ${
                       isActive
                         ? "bg-blue-50 text-blue-700 border border-blue-200"
@@ -275,13 +293,7 @@ const Dashboard = () => {
               </h1>
             </div>
             <div className="flex items-center space-x-3">
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100">
-                <Search size={20} />
-              </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100 relative">
-                <Bell size={20} />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-              </button>
+              <NotificationBell />
               <div className="relative" ref={dropDownRef}>
                 <button
                   className="hidden sm:flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors border border-gray-200"
