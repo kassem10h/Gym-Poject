@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, Products, Cart, CartItem, Order, OrderItem
 from models import TrainerSession, SessionCart, SessionCartItem, Booking
 from datetime import datetime
+from Notifications import notify_booking_cancelled, notify_booking_confirmed, notify_order_placed
 
 checkout_bp = Blueprint('checkout', __name__, url_prefix='/api/checkout')
 
@@ -253,6 +254,14 @@ def process_checkout():
             # Remove from cart
             db.session.delete(booking_data['cart_item'])
             
+            # Notify user of booking confirmation
+            notify_booking_confirmed(
+                user_id=user_id,
+                session_date=session.date,
+                session_time=session.start_time.strftime('%H:%M'),
+                class_name=session.class_type.name
+            )
+            
             created_bookings.append({
                 'booking_id': booking.id,
                 'session_id': session.id,
@@ -262,6 +271,14 @@ def process_checkout():
                 'end_time': session.end_time.strftime('%H:%M'),
                 'trainer_name': f"{session.trainer.first_name} {session.trainer.last_name}"
             })
+
+        # Notify user of order placement
+        if order:
+            notify_order_placed(
+                user_id=user_id,
+                order_id=order.id,
+                total_price=order.total_price
+            )
         
         # Commit transaction
         db.session.commit()
@@ -429,6 +446,12 @@ def cancel_booking(booking_id):
         # Decrement session bookings count
         if session.current_bookings > 0:
             session.current_bookings -= 1
+
+        notify_booking_cancelled(
+            user_id=user_id,
+            session_date=session.date.isoformat(),
+            class_name=session.class_type.name
+        )
         
         db.session.commit()
         

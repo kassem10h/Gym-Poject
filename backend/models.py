@@ -235,3 +235,12 @@ class Membership(db.Model):
 
     created_at = db.Column(db.DateTime, server_default=func.now())
 
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    link = db.Column(db.String(255), nullable=True)  # Optional link related to the notification
+    created_at = db.Column(db.DateTime, server_default=func.now())

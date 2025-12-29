@@ -43,9 +43,9 @@ export default function LoginPage() {
         // Redirect based on role after 1 second
         setTimeout(() => {
           if (data.user.role === 'Trainer') {
-            window.location.href = '/dashboard';
+            window.location.href = '/trainer/dashboard';
           } else if (data.user.role === 'Member') {
-            window.location.href = '/dashboard';
+            window.location.href = '/member/dashboard';
           }
         }, 1000);
       } else {
@@ -237,7 +237,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          
+
 
           {/* Sign Up Link */}
           <p className="mt-8 text-center text-sm text-zinc-600">

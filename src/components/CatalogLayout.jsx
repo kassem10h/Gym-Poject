@@ -2,6 +2,7 @@ import React from 'react';
 import { Search, Filter, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// --- Shared Animation Variants ---
 export const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -29,21 +30,25 @@ export default function CatalogLayout({
   title,
   subtitle,
   icon: Icon,
+  // Search & Filter Props
   searchTerm,
   onSearchChange,
   onSearchSubmit,
   showFilters,
   toggleFilters,
-  filterContent,
+  filterContent, // The specific inputs (selects, etc)
   clearFilters,
+  // Data Props
   loading,
   isEmpty,
   emptyMessage = "No items found",
+  // Pagination Props
   currentPage,
   totalPages,
   onPageChange,
-  children,
-  headerAction
+  // Slots
+  children, // The Grid Items
+  headerAction // Optional buttons (like Cart)
 }) {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans selection:bg-indigo-100 selection:text-indigo-900">

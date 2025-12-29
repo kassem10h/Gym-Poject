@@ -43,14 +43,12 @@ export default function CheckoutPage() {
       if (response.ok) {
         const data = await response.json();
         setCheckoutPreview(data);
-        console.log(checkoutPreview);
         
         // Select all items by default
         setSelectedItems({
           products: data.products.items.map(item => item.cart_item_id),
           sessions: data.sessions.items.map(item => item.cart_item_id)
         });
-        console.log(selectedItems);
       } else {
         showNotification('Failed to load checkout', 'error');
       }
@@ -373,7 +371,7 @@ export default function CheckoutPage() {
                 </button>
 
                 <p className="text-xs text-gray-500 text-center">
-                  This is a simulated payment for university project
+                  By proceeding, you agree to our Terms of Service and Privacy Policy.
                 </p>
               </form>
             </div>
