@@ -5,6 +5,7 @@ Import and use these functions in any blueprint to create notifications.
 from models import db, Notification
 from datetime import datetime
 
+
 def create_notification(user_id, message, link):
     """
     Create a notification for a user.
@@ -163,15 +164,9 @@ def notify_session_cancelled(user_id, class_name, session_date):
     return create_notification(user_id, message, link)
 
 # Trainer Notifications
-def notify_new_booking(trainer_id, class_name, session_date):
+def notify_new_booking(trainer_id, class_name, session_date, member_username):
     """Create notification for new booking"""
-    message = f"A new booking has been made for your {class_name} session on {session_date}."
-    link = "/trainer/dashboard/sessions"
-    return create_notification(trainer_id, message, link)
-
-def notify_session_fully_booked(trainer_id, class_name, session_date):
-    """Create notification when a session becomes fully booked"""
-    message = f"Your {class_name} session on {session_date} is now fully booked!"
+    message = f"{member_username} has booked your {class_name} session on {session_date}."
     link = "/trainer/dashboard/sessions"
     return create_notification(trainer_id, message, link)
 

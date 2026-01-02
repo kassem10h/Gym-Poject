@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, DollarSign, X, Check, AlertCircle, Filter } from 'lucide-react';
+import { 
+  Calendar, Clock, User, DollarSign, X, 
+  Check, AlertCircle, Filter, ChevronDown 
+} from 'lucide-react';
+import { Toast } from '../../components/Toast';
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState([]);
@@ -81,16 +85,17 @@ export default function BookingsPage() {
     }
   };
 
-  const getStatusColor = (status) => {
+  // Helper for Status Badge Styles
+  const getStatusStyles = (status) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-600 border-red-200';
       case 'completed':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
@@ -103,7 +108,7 @@ export default function BookingsPage() {
     return booking.status === 'confirmed' && !isSessionInPast(booking.date, booking.start_time);
   };
 
-  // Group bookings by status
+  // Group bookings
   const upcomingBookings = bookings.filter(b => 
     b.status === 'confirmed' && !isSessionInPast(b.date, b.start_time)
   );
@@ -113,60 +118,68 @@ export default function BookingsPage() {
   const cancelledBookings = bookings.filter(b => b.status === 'cancelled');
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      {/* Notification */}
-      {notification && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 ${
-          notification.type === 'success' ? 'bg-green-600' : 'bg-red-600'
-        } text-white`}>
-          {notification.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-          <span className="font-medium">{notification.message}</span>
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Notification Toast */}
+      <Toast notification={notification} />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Bookings</h1>
-          <p className="text-gray-600">View and manage your training session bookings</p>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex items-center gap-4">
-            <Filter className="w-5 h-5 text-gray-400" />
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-6 border-b border-gray-200">
+          {/* Header */}
+          <div className="bg-white sticky top-0 z-40 border-b border-gray-100 shadow-sm/50 backdrop-blur-lg bg-white/80">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <h1 className="text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+                    Bookings
+                  </h1>
+                  <p className="text-xs font-medium text-gray-400 tracking-wider uppercase mt-1">Manage your bookings</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Custom Select Filter */}
+          <div className="mt-4 sm:mt-0 relative group">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Filter className="h-4 w-4 text-slate-400" />
+            </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+              className="appearance-none pl-10 pr-10 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-slate-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors cursor-pointer"
             >
-              <option value="">All Bookings</option>
+              <option value="">All Statuses</option>
               <option value="confirmed">Confirmed</option>
               <option value="cancelled">Cancelled</option>
               <option value="completed">Completed</option>
             </select>
-            <span className="text-sm text-gray-600">
-              {bookings.length} {bookings.length === 1 ? 'booking' : 'bookings'} found
-            </span>
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <ChevronDown className="h-4 w-4 text-slate-400" />
+            </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div className="flex flex-col justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
+            <p className="text-slate-400 text-sm">Loading your schedule...</p>
           </div>
         ) : bookings.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
-            <p className="text-gray-500">Start booking training sessions to see them here</p>
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+            <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900 mb-1">No bookings found</h3>
+            <p className="text-slate-500 max-w-sm mx-auto">You haven't booked any sessions yet. Once you do, they will appear here.</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-10">
             {/* Upcoming Bookings */}
             {!statusFilter && upcomingBookings.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Upcoming Sessions</h2>
+              <section>
+                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 pl-1">Upcoming Sessions</h2>
                 <div className="space-y-4">
                   {upcomingBookings.map((booking) => (
                     <BookingCard
@@ -175,17 +188,17 @@ export default function BookingsPage() {
                       onCancel={handleCancelBooking}
                       cancelling={cancellingId === booking.booking_id}
                       canCancel={canCancelBooking(booking)}
-                      getStatusColor={getStatusColor}
+                      getStatusStyles={getStatusStyles}
                     />
                   ))}
                 </div>
-              </div>
+              </section>
             )}
 
             {/* Past Bookings */}
             {!statusFilter && pastBookings.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Past Sessions</h2>
+              <section>
+                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 pl-1">Past History</h2>
                 <div className="space-y-4">
                   {pastBookings.map((booking) => (
                     <BookingCard
@@ -194,17 +207,17 @@ export default function BookingsPage() {
                       onCancel={handleCancelBooking}
                       cancelling={cancellingId === booking.booking_id}
                       canCancel={false}
-                      getStatusColor={getStatusColor}
+                      getStatusStyles={getStatusStyles}
                     />
                   ))}
                 </div>
-              </div>
+              </section>
             )}
 
             {/* Cancelled Bookings */}
             {!statusFilter && cancelledBookings.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Cancelled Sessions</h2>
+              <section>
+                <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 pl-1">Cancelled</h2>
                 <div className="space-y-4">
                   {cancelledBookings.map((booking) => (
                     <BookingCard
@@ -213,11 +226,11 @@ export default function BookingsPage() {
                       onCancel={handleCancelBooking}
                       cancelling={cancellingId === booking.booking_id}
                       canCancel={false}
-                      getStatusColor={getStatusColor}
+                      getStatusStyles={getStatusStyles}
                     />
                   ))}
                 </div>
-              </div>
+              </section>
             )}
 
             {/* Filtered View */}
@@ -230,7 +243,7 @@ export default function BookingsPage() {
                     onCancel={handleCancelBooking}
                     cancelling={cancellingId === booking.booking_id}
                     canCancel={canCancelBooking(booking)}
-                    getStatusColor={getStatusColor}
+                    getStatusStyles={getStatusStyles}
                   />
                 ))}
               </div>
@@ -242,80 +255,100 @@ export default function BookingsPage() {
   );
 }
 
-// Booking Card Component
-function BookingCard({ booking, onCancel, cancelling, canCancel, getStatusColor }) {
+// Enhanced Booking Card
+function BookingCard({ booking, onCancel, cancelling, canCancel, getStatusStyles }) {
+  // Format dates cleanly
+  const dateObj = new Date(booking.date + 'T00:00:00');
+  const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+  const dayNum = dateObj.toLocaleDateString('en-US', { day: 'numeric' });
+  const monthName = dateObj.toLocaleDateString('en-US', { month: 'short' });
+  const yearNum = dateObj.toLocaleDateString('en-US', { year: 'numeric' });
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
+    <div className="group bg-white rounded-xl border border-gray-200 p-5 sm:p-6 transition-all duration-200 hover:border-indigo-300 hover:shadow-sm">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        
+        {/* Left Side: Info */}
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-3">
-            <h3 className="text-xl font-bold text-gray-900">{booking.class_type}</h3>
-            <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
+          <div className="flex items-center justify-between lg:justify-start gap-4 mb-5">
+            <h3 className="text-lg font-bold text-slate-900">{booking.class_type}</h3>
+            <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border flex items-center gap-1.5 ${getStatusStyles(booking.status)}`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
               {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div className="flex items-center gap-2 text-gray-600">
-              <User className="w-5 h-5 text-gray-400" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-6 gap-x-4">
+            {/* Trainer */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                <User className="w-5 h-5" />
+              </div>
               <div>
-                <div className="text-xs text-gray-500">Trainer</div>
-                <div className="font-medium">{booking.trainer_name}</div>
+                <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mb-0.5">Trainer</div>
+                <div className="font-medium text-slate-700 text-sm truncate">{booking.trainer_name}</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-5 h-5 text-gray-400" />
+            {/* Date */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                <Calendar className="w-5 h-5" />
+              </div>
               <div>
-                <div className="text-xs text-gray-500">Date</div>
-                <div className="font-medium">
-                  {new Date(booking.date + 'T00:00:00').toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
+                <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mb-0.5">Date</div>
+                <div className="font-medium text-slate-700 text-sm">
+                   {monthName} {dayNum}, {yearNum}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-600">
-              <Clock className="w-5 h-5 text-gray-400" />
+            {/* Time */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                <Clock className="w-5 h-5" />
+              </div>
               <div>
-                <div className="text-xs text-gray-500">Time</div>
-                <div className="font-medium">{booking.start_time} - {booking.end_time}</div>
+                <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mb-0.5">Time</div>
+                <div className="font-medium text-slate-700 text-sm whitespace-nowrap">{booking.start_time} - {booking.end_time}</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-600">
-              <DollarSign className="w-5 h-5 text-gray-400" />
+            {/* Price */}
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-slate-50 rounded-lg text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500 transition-colors">
+                <DollarSign className="w-5 h-5" />
+              </div>
               <div>
-                <div className="text-xs text-gray-500">Price</div>
-                <div className="font-bold text-lg text-gray-900">${booking.price.toFixed(2)}</div>
+                <div className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mb-0.5">Price</div>
+                <div className="font-bold text-slate-900 text-sm">${booking.price.toFixed(2)}</div>
               </div>
             </div>
-          </div>
-
-          <div className="mt-3 text-xs text-gray-500">
-            Booked on {new Date(booking.booked_at).toLocaleDateString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
           </div>
         </div>
 
-        {canCancel && (
-          <button
-            onClick={() => onCancel(booking.booking_id)}
-            disabled={cancelling}
-            className="ml-4 flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-          >
-            <X className="w-5 h-5" />
-            {cancelling ? 'Cancelling...' : 'Cancel'}
-          </button>
-        )}
+        {/* Right Side: Action */}
+        <div className="flex items-center justify-end lg:border-l lg:border-gray-100 lg:pl-6">
+          {canCancel ? (
+            <button
+              onClick={() => onCancel(booking.booking_id)}
+              disabled={cancelling}
+              className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 rounded-md transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <X className="w-4 h-4" />
+              {cancelling ? 'Processing...' : 'Cancel Booking'}
+            </button>
+          ) : (
+             <div className="hidden lg:block text-right">
+                <div className="text-xs text-slate-400">Booked on</div>
+                <div className="text-xs font-medium text-slate-600">
+                    {new Date(booking.booked_at).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric'
+                    })}
+                </div>
+             </div>
+          )}
+        </div>
       </div>
     </div>
   );

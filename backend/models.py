@@ -43,6 +43,32 @@ class User(db.Model):
     def __repr__(self):
         return f'<User {self.email} ({self.role})>'
     
+class Trainer(db.Model):
+    __tablename__ = 'trainers'
+    
+    trainer_id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False, unique=True)
+    
+    years_of_experience = db.Column(db.Integer)
+    hourly_rate = db.Column(db.Numeric(10, 2)) 
+    specialization = db.Column(db.String(255))
+    bio = db.Column(db.Text)
+    
+    height = db.Column(db.Numeric(5, 2))
+    weight = db.Column(db.Numeric(5, 2))
+    
+    profile_picture_url = db.Column(db.String(500))
+    
+    certifications = db.Column(db.Text)
+    
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
+    
+    user = db.relationship('User', backref=db.backref('trainer_profile', uselist=False))
+    
+    def __repr__(self):
+        return f'<Trainer {self.trainer_id} - User {self.user_id}>'
+    
 class ProductCategory(db.Model):
     __tablename__ = 'product_category'
     id = db.Column(db.Integer, primary_key=True)

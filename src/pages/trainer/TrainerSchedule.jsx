@@ -177,7 +177,7 @@ export default function TrainerSchedulePage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
                 onClick={() => setSelectedSession(session)}
-                className="text-xs p-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded cursor-pointer hover:shadow-md transition-all"
+                className="text-xs p-1.5 bg-zinc-800 text-white rounded cursor-pointer hover:shadow-md transition-all"
               >
                 <div className="font-medium truncate">{session.class_type}</div>
                 <div className="opacity-90">{formatTime(session.start_time)}</div>
@@ -512,7 +512,7 @@ export default function TrainerSchedulePage() {
               onClick={(e) => e.stopPropagation()}
               className="bg-white rounded-xl shadow-xl max-w-md w-full transform"
             >
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4 flex items-center justify-between rounded-t-xl">
+              <div className="bg-zinc-900 px-6 py-4 flex items-center justify-between rounded-t-xl">
                 <h2 className="text-xl font-bold text-white">Session Details</h2>
                 <motion.button
                   whileHover={{ scale: 1.1, rotate: 90 }}
@@ -602,7 +602,7 @@ export default function TrainerSchedulePage() {
                         initial={{ width: 0 }}
                         animate={{ width: `${(selectedSession.current_bookings / selectedSession.max_members) * 100}%` }}
                         transition={{ duration: 0.5, delay: 0.4 }}
-                        className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full"
+                        className="bg-zinc-900 h-2 rounded-full"
                       />
                     </div>
                   </div>

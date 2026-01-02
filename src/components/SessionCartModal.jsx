@@ -3,6 +3,24 @@ import { Calendar, X, Trash2, ArrowRight, Clock, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navigate, useNavigate } from 'react-router-dom';
 
+const CLASS_IMAGES = {
+  boxing: "https://images.unsplash.com/photo-1546711076-85a7923432ab?q=80&w=765&auto=format&fit=crop",
+  yoga: "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?q=80&w=1170&auto=format&fit=crop",
+  cardio: "https://images.unsplash.com/photo-1614691771330-13f4e0deec54?q=80&w=735&auto=format&fit=crop",
+  hiit: "https://images.unsplash.com/photo-1599058917212-d750089bc07e?q=80&w=1169&auto=format&fit=crop",
+  pilates: "https://images.unsplash.com/photo-1731325632687-51e90609e700?q=80&w=1631&auto=format&fit=crop",
+  crossfit: "https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?q=80&w=1025&auto=format&fit=crop",
+  cycling: "https://images.unsplash.com/photo-1545575439-3261931f52f1?q=80&w=1171&auto=format&fit=crop",
+  default: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=600"
+};
+
+const getClassImage = (classType) => {
+  if (!classType) return CLASS_IMAGES.default;
+  const normalizedType = classType.toLowerCase();
+  const foundKey = Object.keys(CLASS_IMAGES).find(key => normalizedType.includes(key));
+  return foundKey ? CLASS_IMAGES[foundKey] : CLASS_IMAGES.default;
+};
+
 export default function SessionCartModal({ isOpen, onClose, sessionCart, removeFromSessionCart, loading }) {
   if (!isOpen) return null;
 
@@ -89,8 +107,12 @@ export default function SessionCartModal({ isOpen, onClose, sessionCart, removeF
                       className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                       {/* Session Icon */}
-                      <div className="w-20 h-20 bg-indigo-100 rounded-lg flex-shrink-0 flex items-center justify-center">
-                        <Calendar className="w-10 h-10 text-indigo-600" />
+                      <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
+                        <img 
+                          src={getClassImage(item.class_type)} 
+                          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                          alt={item.class_type}
+                        />
                       </div>
 
                       {/* Session Info */}

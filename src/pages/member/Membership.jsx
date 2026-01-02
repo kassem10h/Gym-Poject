@@ -195,12 +195,9 @@ export default function MembershipPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full"
-        />
+      <div className="flex flex-col justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-4"></div>
+          <p className="text-slate-400 text-sm">Loading your membership...</p>
       </div>
     );
   }

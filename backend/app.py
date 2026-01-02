@@ -1,3 +1,4 @@
+import os
 from flask import Flask, abort, request, redirect, url_for, jsonify
 from sqlalchemy import func
 from config import Config
@@ -6,6 +7,7 @@ from datetime import datetime, timedelta
 from models import db
 from flask_cors import CORS
 import pytz
+from flask import send_from_directory, current_app
 from flask_jwt_extended import JWTManager
 from blueprints.Auth import auth_bp
 from blueprints.admin import admin_bp
@@ -13,6 +15,7 @@ from blueprints.members.shop import shop_bp
 from blueprints.members.cart import cart_bp
 from blueprints.members.session_cart import session_cart_bp
 from blueprints.trainer.sessions import session_bp
+from blueprints.trainer.trainer_profile import trainer_profile_bp
 from blueprints.members.checkout import checkout_bp
 from blueprints.members.membership import membership_bp
 from blueprints.notifications.notifications_bp import notifications_bp
@@ -84,6 +87,11 @@ def revoked_token_callback(jwt_header, jwt_payload):
         'message': 'Please log in again'
     }), 401
 
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    upload_folder = os.path.join(current_app.root_path, 'uploads')
+    return send_from_directory(upload_folder, filename)
+
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
@@ -94,6 +102,7 @@ app.register_blueprint(session_cart_bp)
 app.register_blueprint(checkout_bp)
 app.register_blueprint(membership_bp)
 app.register_blueprint(notifications_bp)
+app.register_blueprint(trainer_profile_bp)
 
 if __name__ == "__main__":
     with app.app_context():

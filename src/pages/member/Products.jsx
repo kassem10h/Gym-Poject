@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Search, Filter, Star, X, Check, AlertCircle, ChevronLeft, ChevronRight, Eye, Tag } from 'lucide-react';
+import { 
+  ShoppingCart, Search, Filter, Star, X, Check, AlertCircle, 
+  ChevronLeft, ChevronRight, Eye, Tag, Minus, Plus, Truck, ShieldCheck 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCart from '../../hooks/useCart';
 import CartModal from '../../components/CartModal';
+import Skeleton from '../../components/Skeleton';
+import { Toast } from '../../components/Toast';
 
-// Animation Variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.1 }
+    transition: { staggerChildren: 0.05 }
   }
 };
 
@@ -22,27 +26,44 @@ const itemVariants = {
   }
 };
 
-const modalVariants = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
+const modalBackdrop = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.3 } },
+  exit: { opacity: 0 }
+};
+
+const modalContent = {
+  hidden: { y: 50, opacity: 0, scale: 0.95 },
+  visible: { 
+    y: 0, 
+    opacity: 1, 
+    scale: 1, 
+    transition: { type: "spring", damping: 25, stiffness: 300 } 
+  },
+  exit: { y: 50, opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
 };
 
 export default function ProductShopPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [minRating, setMinRating] = useState('');
+  
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  
   const [showFilters, setShowFilters] = useState(false);
   const [showCart, setShowCart] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [notification, setNotification] = useState(null);
+  
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   const API_URL = import.meta.env.VITE_REACT_APP_API || 'http://localhost:5000/api';
   const { cart, addToCart, updateCartItem, removeFromCart, loading: cartLoading } = useCart();
@@ -52,7 +73,12 @@ export default function ProductShopPage() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  // Fetch logic remains exactly the same
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setActiveImageIndex(0); 
+    setQuantity(1);
+  };
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -104,10 +130,11 @@ export default function ProductShopPage() {
     fetchCategories();
   }, []);
 
-  const handleAddToCart = async (productId) => {
-    const result = await addToCart(productId, 1);
+  const handleAddToCart = async (productId, qty = 1) => {
+    const result = await addToCart(productId, qty);
     if (result.success) {
       showNotification('Product added to cart!', 'success');
+      if(selectedProduct) setSelectedProduct(null);
     } else {
       showNotification(result.error || 'Failed to add to cart', 'error');
     }
@@ -131,25 +158,11 @@ export default function ProductShopPage() {
     <div className="min-h-screen bg-gray-50 text-gray-800 font-sans selection:bg-indigo-100 selection:text-indigo-900">
       
       {/* Notification Toast */}
-      <AnimatePresence>
         {notification && (
-          <motion.div
-            initial={{ opacity: 0, y: -50, x: 50 }}
-            animate={{ opacity: 1, y: 0, x: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 backdrop-blur-md border ${
-              notification.type === 'success' 
-                ? 'bg-green-50/90 border-green-200 text-green-800' 
-                : 'bg-red-50/90 border-red-200 text-red-800'
-            }`}
-          >
-            {notification.type === 'success' ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-            <span className="font-semibold">{notification.message}</span>
-          </motion.div>
+          <Toast notification={notification} />
         )}
-      </AnimatePresence>
 
-      {/* Modern Header with Gradient */}
+      {/* Header */}
       <div className="bg-white sticky top-0 z-40 border-b border-gray-100 shadow-sm/50 backdrop-blur-lg bg-white/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex items-center justify-between">
@@ -222,6 +235,7 @@ export default function ProductShopPage() {
                 className="overflow-hidden"
               >
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 mt-2 border-t border-gray-100">
+                  {/* Filter Inputs */}
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-gray-500 uppercase ml-1">Category</label>
                     <select
@@ -235,48 +249,22 @@ export default function ProductShopPage() {
                       ))}
                     </select>
                   </div>
-
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-gray-500 uppercase ml-1">Min Price</label>
-                    <input
-                      type="number"
-                      placeholder="$0"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                    />
+                    <input type="number" placeholder="$0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" />
                   </div>
-
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-gray-500 uppercase ml-1">Max Price</label>
-                    <input
-                      type="number"
-                      placeholder="$1000+"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                    />
+                    <input type="number" placeholder="$1000+" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" />
                   </div>
-
-                  <div className="space-y-1">
+                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-gray-500 uppercase ml-1">Rating</label>
-                    <select
-                      value={minRating}
-                      onChange={(e) => setMinRating(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                    >
-                      <option value="">All Ratings</option>
-                      <option value="4">4+ Stars</option>
-                      <option value="3">3+ Stars</option>
-                      <option value="2">2+ Stars</option>
+                    <select value={minRating} onChange={(e) => setMinRating(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500">
+                      <option value="">All Ratings</option><option value="4">4+ Stars</option><option value="3">3+ Stars</option>
                     </select>
                   </div>
-
                   <div className="md:col-span-4 flex justify-end mt-2">
-                    <button
-                      onClick={clearFilters}
-                      className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
-                    >
+                    <button onClick={clearFilters} className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors flex items-center gap-1">
                       <X className="w-4 h-4" /> Reset Filters
                     </button>
                   </div>
@@ -288,102 +276,51 @@ export default function ProductShopPage() {
 
         {/* Products Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-             {/* Skeleton Loading State */}
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl p-4 shadow-sm animate-pulse">
-                <div className="bg-gray-200 h-64 rounded-xl mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            ))}
-          </div>
+          <Skeleton count={12} />
         ) : products.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-20 text-center"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center">
             <div className="bg-indigo-50 p-6 rounded-full mb-4">
               <Search className="w-12 h-12 text-indigo-400" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-500 max-w-sm">We couldn't find what you're looking for. Try adjusting your search or filters.</p>
             <button onClick={clearFilters} className="mt-6 text-indigo-600 font-semibold hover:underline">Clear all filters</button>
           </motion.div>
         ) : (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
-          >
+          <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {products.map((product) => (
               <motion.div
                 key={product.id}
                 variants={itemVariants}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-xl hover:shadow-indigo-100/50 border border-gray-100 overflow-hidden cursor-pointer transition-all duration-300"
-                onClick={() => setSelectedProduct(product)}
+                onClick={() => openProductModal(product)}
               >
-                {/* Image Area */}
                 <div className="aspect-[4/5] relative overflow-hidden bg-gray-100">
                   {product.images && product.images.length > 0 ? (
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                    />
+                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                      <ShoppingCart className="w-12 h-12 text-gray-200" />
-                    </div>
+                    <div className="w-full h-full flex items-center justify-center bg-gray-50"><ShoppingCart className="w-12 h-12 text-gray-200" /></div>
                   )}
-                  
-                  {/* Overlay on Hover */}
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                      <div className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-full font-medium text-sm transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 flex items-center gap-2">
                         <Eye className="w-4 h-4" /> Quick View
                      </div>
                   </div>
-
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-white/90 backdrop-blur shadow-sm text-gray-900 text-[10px] font-bold px-2 py-1 uppercase tracking-wide rounded-md">
-                      {product.category_name}
-                    </span>
-                  </div>
                 </div>
-
-                {/* Content Area */}
                 <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-gray-900 line-clamp-1 text-lg group-hover:text-indigo-600 transition-colors">
-                      {product.name}
-                    </h3>
-                  </div>
-                  
-                  <div className="flex items-center gap-1 mb-3">
+                  <h3 className="font-bold text-gray-900 line-clamp-1 text-lg group-hover:text-indigo-600 transition-colors">{product.name}</h3>
+                  <div className="flex items-center gap-1 mb-3 mt-1">
                     <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-3.5 h-3.5 ${i < Math.floor(product.rating) ? 'fill-current' : 'text-gray-200'}`}
-                      />
-                    ))}
+                    {[...Array(5)].map((_, i) => <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(product.rating) ? 'fill-current' : 'text-gray-200'}`} />)}
                     </div>
-                    <span className="text-xs text-gray-400 font-medium">({product.rating})</span>
                   </div>
-
                   <div className="flex items-end justify-between mt-4">
                     <div className="flex flex-col">
                       <span className="text-xs text-gray-400 font-medium uppercase">Price</span>
                       <span className="text-xl font-extrabold text-gray-900">${product.price}</span>
                     </div>
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(product.id);
-                      }}
+                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product.id, 1); }}
                       disabled={cartLoading}
                       className="bg-gray-900 hover:bg-indigo-600 text-white p-3 rounded-xl shadow-lg shadow-gray-200 transition-colors"
                     >
@@ -396,131 +333,181 @@ export default function ProductShopPage() {
           </motion.div>
         )}
 
-        {/* Modern Pagination */}
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-12 flex justify-center items-center gap-4">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="p-3 border border-gray-200 rounded-full hover:bg-white hover:shadow-md disabled:opacity-30 disabled:hover:shadow-none transition-all"
-            >
+            <button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} className="p-3 border border-gray-200 rounded-full hover:bg-white hover:shadow-md disabled:opacity-30">
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <span className="px-6 py-2 bg-white rounded-full shadow-sm text-sm font-semibold text-gray-700 border border-gray-100">
-              {currentPage} <span className="text-gray-300 mx-2">/</span> {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="p-3 border border-gray-200 rounded-full hover:bg-white hover:shadow-md disabled:opacity-30 disabled:hover:shadow-none transition-all"
-            >
+            <span className="px-6 py-2 bg-white rounded-full shadow-sm text-sm font-semibold text-gray-700 border border-gray-100">{currentPage} / {totalPages}</span>
+            <button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} className="p-3 border border-gray-200 rounded-full hover:bg-white hover:shadow-md disabled:opacity-30">
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
           </div>
         )}
       </div>
-
-      {/* Product Detail Modal */}
+      {/* Product Modal */}
       <AnimatePresence>
         {selectedProduct && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          >
+          <>
             <motion.div 
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row"
-            >
-              {/* Image Section */}
-              <div className="w-full md:w-1/2 bg-gray-100 p-8 flex items-center justify-center relative">
-                 <button
-                    onClick={() => setSelectedProduct(null)}
-                    className="absolute top-4 left-4 md:hidden p-2 bg-white rounded-full shadow-md z-10"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+              variants={modalBackdrop}
+              initial="hidden" animate="visible" exit="exit"
+              onClick={() => setSelectedProduct(null)}
+              className="fixed inset-0 bg-gray-900/40 backdrop-blur-md z-50"
+            />
+            
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+              <motion.div 
+                variants={modalContent}
+                initial="hidden" animate="visible" exit="exit"
+                className="bg-white rounded-[2rem] shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row pointer-events-auto relative"
+              >
+                {/* Close Button Absolute */}
+                <button 
+                  onClick={() => setSelectedProduct(null)}
+                  className="absolute top-6 right-6 z-10 p-2 bg-white/50 backdrop-blur-md hover:bg-white text-gray-500 hover:text-red-500 rounded-full transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
 
-                <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-inner bg-white">
-                  {selectedProduct.images && selectedProduct.images.length > 0 ? (
-                    <img
-                      src={selectedProduct.images[0]}
-                      alt={selectedProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ShoppingCart className="w-20 h-20 text-gray-200" />
+                <div className="w-full md:w-3/5 bg-gray-50/50 p-6 md:p-10 flex flex-col">
+                  {/* Main Image Display */}
+                  <div className="relative flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex items-center justify-center mb-6 aspect-square md:aspect-auto">
+                     <AnimatePresence mode="wait">
+                        <motion.img 
+                          key={activeImageIndex}
+                          initial={{ opacity: 0, scale: 1.05 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          src={selectedProduct.images && selectedProduct.images.length > 0 ? selectedProduct.images[activeImageIndex] : ''}
+                          className="w-full h-full object-contain p-4"
+                          alt={selectedProduct.name}
+                        />
+                     </AnimatePresence>
+                     
+                     {/* Floating Badge */}
+                     <div className="absolute top-4 left-4">
+                       <span className="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-lg shadow-indigo-200">
+                         {selectedProduct.category_name}
+                       </span>
+                     </div>
+                  </div>
+
+                  {/* Thumbnail Strip */}
+                  {selectedProduct.images && selectedProduct.images.length > 1 && (
+                    <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                      {selectedProduct.images.map((img, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveImageIndex(idx)}
+                          className={`relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
+                            activeImageIndex === idx ? 'border-indigo-600 ring-2 ring-indigo-100' : 'border-transparent opacity-60 hover:opacity-100'
+                          }`}
+                        >
+                          <img src={img} alt="thumbnail" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* Content Section */}
-              <div className="w-full md:w-1/2 flex flex-col p-8 md:p-10 overflow-y-auto">
-                <div className="flex justify-between items-start">
-                   <div>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wide mb-4">
-                      <Tag className="w-3 h-3" />
-                      {selectedProduct.category_name}
-                    </span>
-                    <h2 className="text-3xl font-extrabold text-gray-900 mb-2">{selectedProduct.name}</h2>
-                   </div>
-                   <button
-                    onClick={() => setSelectedProduct(null)}
-                    className="hidden md:block text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="flex text-yellow-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-5 h-5 ${i < Math.floor(selectedProduct.rating) ? 'fill-current' : 'text-gray-200'}`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm font-medium text-gray-500 underline underline-offset-4 decoration-gray-300">
-                    {selectedProduct.rating} Rating
-                  </span>
-                </div>
-
-                <div className="prose prose-sm text-gray-600 mb-8 flex-grow">
-                  <p className="leading-relaxed text-lg">{selectedProduct.description}</p>
-                </div>
-
-                <div className="mt-auto border-t border-gray-100 pt-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <p className="text-sm text-gray-500 font-medium">Total Price</p>
-                      <p className="text-4xl font-black text-gray-900 tracking-tight">${selectedProduct.price}</p>
+                <div className="w-full md:w-2/5 p-8 md:p-12 flex flex-col overflow-y-auto bg-white">
+                  
+                  {/* Header Info */}
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex text-yellow-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < Math.floor(selectedProduct.rating) ? 'fill-current' : 'text-gray-200'}`} />
+                        ))}
+                      </div>
+                      <span className="text-sm font-medium text-gray-400">({selectedProduct.rating} Reviews)</span>
+                      <span className="mx-2 text-gray-300">•</span>
+                      <span className="text-green-600 text-sm font-medium flex items-center gap-1">
+                        <Check className="w-3 h-3" /> In Stock
+                      </span>
+                    </div>
+                    
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-2">
+                      {selectedProduct.name}
+                    </h2>
+                    
+                    <div className="flex items-baseline gap-3 mt-4">
+                      <span className="text-4xl font-black text-gray-900 tracking-tight">${selectedProduct.price}</span>
+                      <span className="text-lg text-gray-400 line-through decoration-gray-300 font-medium">${(parseFloat(selectedProduct.price) * 1.2).toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      handleAddToCart(selectedProduct.id);
-                      setSelectedProduct(null);
-                    }}
-                    disabled={cartLoading}
-                    className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-600 transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3"
-                  >
-                    <ShoppingCart className="w-6 h-6" />
-                    Add to Cart
-                  </motion.button>
+                  <div className="prose prose-sm text-gray-500 mb-8 overflow-y-auto max-h-40 pr-2 custom-scrollbar">
+                    <p className="leading-relaxed text-base">{selectedProduct.description}</p>
+                  </div>
+
+                  {/* Trust Badges */}
+                  <div className="grid grid-cols-2 gap-3 mb-8">
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                      <div className="bg-blue-100 p-2 rounded-lg text-blue-600"><Truck className="w-5 h-5"/></div>
+                      <div className="text-xs">
+                        <p className="font-bold text-gray-900">Free Shipping</p>
+                        <p className="text-gray-500">On orders over $100</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                      <div className="bg-purple-100 p-2 rounded-lg text-purple-600"><ShieldCheck className="w-5 h-5"/></div>
+                      <div className="text-xs">
+                        <p className="font-bold text-gray-900">2 Year Warranty</p>
+                        <p className="text-gray-500">100% Authentic</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions Footer */}
+                  <div className="mt-auto space-y-4">
+                    <div className="flex items-center justify-between bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
+                      <div className="flex items-center gap-4 px-4">
+                        <span className="text-sm font-bold text-gray-500 uppercase tracking-wide">Qty</span>
+                      </div>
+                      <div className="flex items-center bg-white rounded-xl shadow-sm border border-gray-100">
+                        <motion.button 
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="p-3 text-gray-500 hover:text-indigo-600 transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </motion.button>
+                        <span className="w-8 text-center font-bold text-gray-900">{quantity}</span>
+                        <motion.button 
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="p-3 text-gray-500 hover:text-indigo-600 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </motion.button>
+                      </div>
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleAddToCart(selectedProduct.id, quantity)}
+                      disabled={cartLoading}
+                      className="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-indigo-600 transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-3"
+                    >
+                      {cartLoading ? (
+                        <span className="animate-spin w-6 h-6 border-2 border-white/30 border-t-white rounded-full"></span>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-5 h-5" />
+                          <span>Add to Cart - ${(parseFloat(selectedProduct.price) * quantity).toFixed(2)}</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          </motion.div>
+              </motion.div>
+            </div>
+          </>
         )}
       </AnimatePresence>
 

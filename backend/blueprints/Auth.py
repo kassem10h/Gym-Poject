@@ -1,7 +1,3 @@
-"""
-Authentication Blueprint - Login and Signup
-Fixed to use flask-jwt-extended consistently
-"""
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
@@ -284,3 +280,38 @@ def admin_login():
         
     except Exception as e:
         return jsonify({'error': f'Login failed: {str(e)}'}), 500
+    
+@auth_bp.route('/me', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    """
+    Get current logged-in user information
+    
+    Headers:
+    Authorization: Bearer <token>
+    """
+    try:
+        # Get current user ID from token
+        user_id = get_jwt_identity()
+        
+        # Get user from database
+        user = User.query.filter_by(user_id=user_id, is_active=True).first()
+        
+        if not user:
+            return jsonify({'error': 'User not found or inactive'}), 404
+        
+        return jsonify({
+            'user': {
+                'user_id': user.user_id,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'phone': user.phone,
+                'role': user.role,
+                'gender': user.gender,
+                'date_of_birth': user.date_of_birth.isoformat() if user.date_of_birth else None
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': f'Failed to retrieve user info: {str(e)}'}), 500

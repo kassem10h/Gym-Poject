@@ -12,6 +12,8 @@ import SessionBookingPage from './member/SessionBooking';
 import BookingsPage from './member/Bookings';
 import TrainerSessionsPage from './trainer/SessionMangament';
 import TrainerSchedulePage from './trainer/TrainerSchedule';
+import TrainerProfile from './trainer/TrainerProfile';
+import TrainerDashboard from './trainer/Dashboard';
 import MembershipPage from './member/Membership';
 import BMICalculator from './member/BMICalculator';
 import MemberDashboard from './member/Dashboard';
@@ -22,7 +24,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const dropDownRef = useRef(null);  
+  const dropDownRef = useRef(null);
+  
   // Get user from localStorage
   const user = localStorage.getItem('user') 
     ? JSON.parse(localStorage.getItem('user')) 
@@ -57,7 +60,6 @@ const Dashboard = () => {
         { id: 'dashboard', label: 'Dashboard', icon: Home },
         { id: 'my-classes', label: 'My Classes', icon: Users },
         { id: 'schedule', label: 'Schedule', icon: Calendar },
-        { id: 'members', label: 'Members', icon: Users },
         { id: 'products', label: 'Products', icon: ShoppingCart },
         { id: 'equipment', label: 'Equipment', icon: Dumbbell },
         { id: 'profile', label: 'Profile', icon: User },
@@ -171,17 +173,17 @@ const Dashboard = () => {
     if (user.role === 'Trainer') {
       switch(activeTab) {
         case 'dashboard':
-          return <PlaceholderContent title="Trainer Dashboard" />;
+          return <TrainerDashboard />;
         case 'my-classes':
           return <TrainerSessionsPage />;
         case 'schedule':
           return <TrainerSchedulePage />;
-        case 'members':
-          return <PlaceholderContent title="Members" />;
+        case 'products':
+          return <ProductShopPage />;
         case 'equipment':
-          return <PlaceholderContent title="Equipment" />;
+          return <EquipmentPage />;
         case 'profile':
-          return <PlaceholderContent title="Profile" />;
+          return <TrainerProfile />;
         default:
           return <PlaceholderContent title="Trainer Dashboard" />;
       }
@@ -192,8 +194,11 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* BMI Calculator - Only for Members on all pages */}
-      {user.role === 'Member' && <BMICalculator />}
+      {user.role === "Member" && (
+        <div className="fixed z-[100]">
+          <BMICalculator />
+        </div>
+      )}
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
