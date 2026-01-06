@@ -232,7 +232,7 @@ const Dashboard = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-800">
-                GymMS
+                Kefah
               </h2>
               <p className="text-xs text-gray-500">{user.role} Portal</p>
             </div>

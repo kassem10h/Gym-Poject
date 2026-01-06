@@ -88,7 +88,7 @@ const TrainerWaitingPage = () => {
         </h1>
         
         <p className="text-lg text-gray-600 mb-10 leading-relaxed">
-          Hey <span className="font-bold text-blue-600">{user?.name || 'Coach'}</span>, thanks for joining FitZone! Our admin team is currently reviewing your certifications and profile to ensure the highest quality for our members.
+          Hey <span className="font-bold text-blue-600">{user?.name || 'Coach'}</span>, thanks for joining kefah! Our admin team is currently reviewing your certifications and profile to ensure the highest quality for our members.
         </p>
 
         {/* Status Steps */}
@@ -132,7 +132,7 @@ const TrainerWaitingPage = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
             <Mail className="h-4 w-4" />
-            <span>Need help? Contact <a href="mailto:support@fitzone.com" className="text-blue-600 font-medium hover:underline">support@fitzone.com</a></span>
+            <span>Need help? Contact <a href="mailto:support@kefah.com" className="text-blue-600 font-medium hover:underline">support@kefah.com</a></span>
           </div>
 
           <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-4 justify-center">

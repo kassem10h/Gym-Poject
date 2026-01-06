@@ -16,7 +16,7 @@ const Footer = () => {
               <div className="p-2 bg-white rounded-xl text-zinc-900">
                 <Dumbbell className="h-6 w-6" />
               </div>
-              <span className="text-2xl font-black text-white tracking-tighter uppercase">FitZone</span>
+              <span className="text-2xl font-black text-white tracking-tighter uppercase">kefah</span>
             </div>
             <p className="max-w-md text-zinc-500 font-medium leading-relaxed">
               Transform your body, transform your life. Premium equipment, expert trainers, 
@@ -89,7 +89,7 @@ const Footer = () => {
 
         {/* --- Bottom Section --- */}
         <div className="border-t border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-zinc-600 uppercase tracking-wider">
-          <p>&copy; {new Date().getFullYear()} FitZone Systems.</p>
+          <p>&copy; {new Date().getFullYear()} kefah Systems.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>
             <a href="#" className="hover:text-white transition-colors">Cookies</a>

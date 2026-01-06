@@ -74,7 +74,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex gap-2">
             <Link 
-              to="/admin/analytics" 
+              to="/admin/dashboard/analytics" 
               className="px-4 py-2 bg-white border border-zinc-200 text-zinc-600 rounded-xl text-sm font-bold hover:bg-zinc-100 transition-colors"
             >
               View Full Analytics

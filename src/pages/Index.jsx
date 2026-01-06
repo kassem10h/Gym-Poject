@@ -51,7 +51,7 @@ const LandingPage = () => {
                 <span className="text-blue-600 italic">Our Mission.</span>
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed max-w-xl">
-                FitZone is the all-in-one ecosystem for elite athletes and fitness enthusiasts. Personal coaching, smart tracking, and premium gear.
+                kefah is the all-in-one ecosystem for elite athletes and fitness enthusiasts. Personal coaching, smart tracking, and premium gear.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
@@ -162,7 +162,10 @@ const LandingPage = () => {
                     </li>
                   ))}
                 </ul>
-                <button className={`w-full py-4 rounded-2xl font-bold transition ${plan.popular ? 'bg-blue-600 text-white shadow-xl shadow-blue-200' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'}`}>
+                <button
+                  onClick={() => window.location.href = '/signup'}
+                  className={`w-full py-4 rounded-2xl font-bold transition ${plan.popular ? 'bg-blue-600 text-white shadow-xl shadow-blue-200' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'}`}
+                >
                   Get Started
                 </button>
               </motion.div>
