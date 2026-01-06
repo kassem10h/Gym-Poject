@@ -14,6 +14,7 @@ import CheckoutSuccessPage from "./pages/checkout/CheckoutSuccess";
 import ProductShopPage from "./pages/member/Products";
 import EquipmentPage from "./pages/member/Equipments";
 import TrainerWaitingPage from "./pages/WaitingPage";
+import AccessibilityWidget from "./components/AccessibilityWidget";
 
 const API_URL = import.meta.env.VITE_REACT_APP_API || 'http://localhost:5000/api';
 
@@ -25,6 +26,7 @@ function isTokenExpired(token) {
     return true;
   }
 }
+
 function ProtectedTrainerRoute({ children }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -116,6 +118,8 @@ function AppContent() {
   return (
     <>
       {shouldShowLayout && <Navigation />}
+      
+      <AccessibilityWidget />
 
       <Routes>
         {/* Public Routes */}
