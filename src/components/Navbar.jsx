@@ -48,7 +48,7 @@ const Navbar = () => {
           </motion.div>
           
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium transition">Features</a>
+            <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium transition"></a>
             <a href="/equipments" className="text-gray-700 hover:text-blue-600 font-medium transition">Equipment</a>
             <a href="/products" className='text-gray-700 hover:text-blue-600 font-medium transition'>Products</a>
             
